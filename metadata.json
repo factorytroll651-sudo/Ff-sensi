@@ -1,0 +1,8 @@
+{
+  "name": "Remix SensiPro FF: AI Coach \u0026 Sensi",
+  "description": "Professional Free Fire sensitivity generator, DPI calculator, AI Coach aim diagnostic, OCR settings cloner, and pro player presets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

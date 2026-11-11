@@ -1,0 +1,267 @@
+You are an expert principal mobile engineer. Build a complete, production-ready, high-converting mobile application called "SensiPro FF: AI Coach & Sensi" (inspired by gaming utility apps like Real Sensi FF Pro) using React Native, Expo SDK, Expo Router, and NativeWind (Tailwind CSS).
+
+The app must fully support **Free Fire Global**, **Free Fire MAX**, and **Free Fire India** (`com.dts.freefireindia`).
+
+---
+
+### 1. APPLICATION GOAL & TARGET AUDIENCE
+A professional competitive utility app for mobile battle royale players that provides:
+1. **Device-Specific Sensitivity & DPI Engine:** Auto-detects device hardware (including popular Indian & Global devices from Xiaomi, Realme, Vivo, iQOO, OnePlus, Samsung, Apple, Poco, Infinix) and calculates exact in-game sensitivity sliders, fire button sizes, DPI, and pointer speeds.
+2. **"Coach IA" (AI Aim & Gameplay Diagnostic):** An interactive AI coach that evaluates aim flaws (bullets missing head, crosshair sticking to chest, slow drag) via diagnostic questionnaires and gameplay clip/screenshot reviews.
+3. **"Clone Sensi" (OCR Scanner):** Upload any settings screenshot or YouTuber's video frame and use On-Device OCR (ML Kit) to extract numeric values directly into the user's config.
+4. **Pro Player Presets:** Verified sensitivity settings from top Global & Indian esports creators (e.g., Raistar, Total Gaming / AjjuBhai, Gyan Gaming, Nobru, Cerol, Bak).
+5. **Tactical Optimizer Suite ("Regedit" Toggles):** Calibration profiles for Perfect Aim (*Mira Perfeita*), Touch Response (*Fast Click*), Recoil Control Guide (*Sem Recuo*), and FPS Booster / Lag Reducer.
+6. **Multi-Game Quick Launcher:** 1-tap direct launch intents for:
+   - Free Fire India (`com.dts.freefireindia`)
+   - Free Fire MAX (`com.dts.freefiremax`)
+   - Free Fire Global (`com.dts.freefireth`)
+7. **Complete Paid/VIP Monetization Suite:** In-App Purchases (RevenueCat) + UPI / INR pricing (India) & Global pricing (USD/BRL), AI Coach token economy, 7-day daily claim streaks, and referral affiliate system.
+
+---
+
+### 2. TECH STACK & PACKAGES
+- **Framework:** Expo (Managed Workflow, latest SDK) with Expo Router (File-based typed routes).
+- **Styling:** NativeWind (Tailwind CSS) + `react-native-reanimated` (v3) + `react-native-gesture-handler`.
+- **Icons:** `@expo/vector-icons` (MaterialCommunityIcons, Ionicons, FontAwesome6).
+- **State Management & Persistence:** Zustand + `@react-native-async-storage/async-storage`.
+- **Device Info:** `expo-device` and `expo-application` for auto-detecting brand, model, and OS.
+- **OCR Engine:** `@react-native-ml-kit/text-recognition` or camera/image-picker OCR pipeline.
+- **Payments & Subscriptions:** `react-native-purchases` (RevenueCat) supporting Google Play Billing, Apple StoreKit, and Razorpay/Stripe (for UPI/Cards).
+- **Haptics & Media:** `expo-haptics`, `expo-image-picker`, `expo-linear-gradient`, `expo-blur`.
+
+---
+
+### 3. THEME & CYBERPUNK GAMER DESIGN SYSTEM
+- **Color Palette:**
+  - Background Base: `#05070B` (Pitch Black)
+  - Card Surfaces: `#0F141F` (Deep Slate) with `1px` border `rgba(255, 255, 255, 0.08)`
+  - Elevated Cards: `#161D2E`
+  - Neon Gamer Green (Primary Accent): `#22C55E` / `#4ADE80` (Active states, sliders, fire buttons, high-accuracy badges)
+  - Cyber Amber / Gold (VIP Accent): `#F59E0B` / `#FBBF24` (Pro/Elite ribbons, coins, tokens, crowns)
+  - Crimson Red (Alert/Recoil Accent): `#EF4444` / `#DC2626` (Fire button preview, recoil warnings)
+  - Muted Text: `#94A3B8`
+- **Typography:** Bold condensed gamer headings, large metric counters, and high-contrast labels.
+- **Visuals:** Glowing gradient borders, circular fire button size visualizer, smooth spring sliders, and futuristic audio/haptic clicks on button presses.
+
+---
+
+### 4. FULL FILE & ROUTE STRUCTURE
+app/
+├── _layout.tsx               # Root layout: ThemeProvider, QueryClient, RevenueCat & Zustand init
+├── welcome.tsx               # Onboarding: Device auto-detection, game version select (Global/MAX/India)
+├── login.tsx                 # Passwordless email / OTP auth modal & recovery
+├── plans.tsx                 # VIP Subscription Paywall (Free vs. Pro vs. Elite) with INR & USD toggles
+├── rewards.tsx               # 7-Day Progressive Claim Bonus & Token Streak
+├── clone-sensi.tsx           # OCR Screenshot sensitivity extractor
+├── referral.tsx              # Referral & Creator coupon code redemption
+├── support.tsx               # In-app helpdesk & ticket submission
+├── (tabs)/
+│   ├── _layout.tsx           # Bottom navigation bar with neon indicators
+│   ├── index.tsx             # Home: Coach IA entry, Daily Token counter, Active Sensi Card, Launchers
+│   ├── sensi.tsx             # Sensi Generator: Device selector, sliders, weapon filters, DPI, Regedit tools
+│   ├── loja.tsx              # Store: VIP memberships, Token bundles, Influencer presets shop
+│   └── settings.tsx          # Settings: Game target (India/MAX/Global), Language, Backup, Profile
+src/
+├── constants/
+│   ├── devices.ts            # Database of 300+ phones (Samsung, Xiaomi/Redmi, Realme, Vivo, iQOO, OnePlus, iPhone, Poco, Asus ROG)
+│   ├── weapons.ts            # Weapon categories (Shotgun/Doze, SMG, AR/Fuzil, Sniper/AWM)
+│   └── influencers.ts        # Presets: Raistar, Total Gaming (AjjuBhai), Gyan Gaming, Nobru, Cerol, Bak
+├── services/
+│   ├── sensiAlgorithm.ts     # Sensitivity calculation engine based on screen DPI, aspect ratio & playstyle
+│   ├── coachEngine.ts        # AI Coach prompt evaluator & diagnostic recommendation builder
+│   ├── ocrExtractor.ts       # Text parser extracting numbers adjacent to Geral, Red Dot, 2x, 4x, AWM, DPI
+│   └── gameLauncher.ts       # Android Intent / iOS URL scheme handler for FF Global, MAX & India
+└── stores/
+├── useSensiStore.ts      # Active sensitivity values, custom saved profiles, active weapon
+├── useUserStore.ts       # Auth state, token balance, VIP tier (Free/Pro/Elite), streak progress
+└── useSettingsStore.ts   # Selected game version, target device model, UI sound/haptics toggle
+
+
+
+---
+
+### 5. COMPLETE FEATURE SPECIFICATIONS
+
+#### Module A: Hardware-Aware Sensitivity Generator (`app/(tabs)/sensi.tsx`)
+1. **Device Auto-Detection & Search:**
+   - On load, reads device brand and model from `expo-device`.
+   - Allows manual search across all popular global and Indian smartphone brands:
+     * *Xiaomi / Redmi / POCO:* Redmi Note 13 Pro, POCO X6 Pro, Redmi 12, POCO F5.
+     * *Realme:* Realme 12 Pro+, Narzo 70, GT 6T.
+     * *Vivo / iQOO:* iQOO Neo 9 Pro, iQOO Z9, Vivo V30, Vivo T3.
+     * *OnePlus:* OnePlus 12R, Nord CE 4.
+     * *Samsung:* Galaxy S24, Galaxy A55, Galaxy M34, Galaxy F54.
+     * *Apple:* iPhone 11 through iPhone 16 Pro Max.
+     * *Gaming Phones:* ASUS ROG Phone 8, Black Shark.
+2. **Sensitivity Sliders (0 to 100 / 0 to 200 toggle):**
+   - **Geral (General):** Base camera movement.
+   - **Ponto Vermelho (Red Dot):** Iron-sight tracking speed.
+   - **Mira 2x (2x Scope):** Medium-range drag.
+   - **Mira 4x (4x Scope):** Long-range spray control.
+   - **Mira AWM (Sniper Scope):** Smooth crosshair stabilization.
+   - **Olhadinha (Free Look):** 360-degree sprint camera.
+3. **Hardware Tuning Metrics:**
+   - **Tamanho do Botão (Fire Button Size):** Exact percentage recommendation (e.g., 46%) with an interactive scaling visual circle.
+   - **Posição do Botão (HUD Placement):** Visual diagrams for 2-Finger, 3-Finger, and 4-Finger claw players.
+   - **DPI Recomendada:** Precise Android developer options DPI number (e.g., 392, 450, 540, 600, 720).
+   - **Velocidade do Ponteiro (Pointer Speed):** Exact slider notch position (-3 to +3).
+4. **Weapon Category Presets (Filter Chips):**
+   - *Shotguns / Doze:* One-tap headshot drag calibrations (M1014, MAG-7, SPAS-12, M1887 / Two9).
+   - *SMGs:* Fast continuous drag spray (MP40, UMP, Thompson, MP5).
+   - *Rifles / ARs:* Recoil compensation curves (AK-47, SCAR, M4A1, Groza, Woodpecker).
+   - *Snipers:* Micro-flick sensitivities (AWM, M82B, Kar98k).
+5. **Tactical Optimizer ("Regedit" Toggles):**
+   - *Mira Perfeita:* Aim stabilization profile for less crosshair jitter.
+   - *Sem Recuo (Recoil Guide):* Visual drag trajectory guide showing drag-up angle based on distance.
+   - *Fast Click:* Touch response booster calibration profile.
+   - *Redutor de Lag / FPS Booster:* Memory flush and background cache checklist.
+6. **Multi-Game Launch Bar:**
+   - Button 1: **Free Fire India** (`intent://com.dts.freefireindia` / `market://details?id=com.dts.freefireindia`)
+   - Button 2: **Free Fire MAX** (`intent://com.dts.freefiremax`)
+   - Button 3: **Free Fire Global** (`intent://com.dts.freefireth`)
+
+#### Module B: Coach IA — AI Gameplay & Aim Diagnostician (`app/(tabs)/index.tsx`)
+1. **Mode 1 — Guided Aim Questionnaire (Instant Fix):**
+   - Step 1: User selects primary role (Rusher, Support, Sniper, IGL).
+   - Step 2: User selects specific game mode (Ranked Battle Royale, Contra Squad / CS, 1v1 Custom Room / Apostado).
+   - Step 3: What is failing?
+     - "Bullets flying over the enemy's head" -> *AI decreases Geral by 3-5% and increases button size by 2%.*
+     - "Bullets sticking to the chest / not rising" -> *AI increases Geral and Red Dot, suggests higher DPI or smaller button size.*
+     - "Aim shaking horizontally" -> *AI stabilizes pointer speed and suggests specific button placement.*
+   - Generates an instant diagnostic report with exact adjusted numbers and a "Copiar para o Jogo" button.
+2. **Mode 2 — Video & Screenshot Analysis:**
+   - User uploads a 5–15 second clip of training ground shooting.
+   - Consumes 1 Coach IA Token.
+   - Outputs:
+     - Headshot Accuracy Score (e.g., 88%).
+     - Drag Speed Rating (Too slow / Ideal / Too aggressive).
+     - Headshot Rate Prediction (*Taxa de Capa*).
+     - Tactical recommendation checklist.
+
+#### Module C: Clone Sensi via OCR (`app/clone-sensi.tsx`)
+1. User picks a screenshot of in-game sensitivity settings or an influencer's video frame.
+2. System runs ML Kit Text Recognition to detect text blocks and numbers.
+3. Automatically parses lines matching labels (e.g., "Geral", "Red Dot", "2x", "4x", "AWM", "DPI") and maps numbers into the app's sensitivity sliders.
+4. User can inspect, edit, and click "Salvar como Meu Perfil".
+
+#### Module D: Influencer Presets Hub (`app/(tabs)/loja.tsx`)
+- Card catalog featuring verified sensitivity, DPI, and fire button sizes of famous players:
+  - **Indian Stars:** Total Gaming (AjjuBhai), Raistar, Gyan Sujan, Desi Gamers (AmitBhai), Pahadi Gaming.
+  - **Global & Brazilian Stars:** Nobru, Cerol, Bak, Thurzin, WhiteFF, Syblus.
+  - Free users see 1 unlocked preset; VIP users get all presets unlocked with 1-tap "Apply to My Setup".
+
+#### Module E: Monetization & VIP Economy (`app/plans.tsx` & Store)
+1. **VIP Tier Architecture:**
+   - **Free Plan:** Basic general sensitivity calculation, 1 daily Coach IA question, default device configs, ads enabled.
+   - **Pro Plan:** All weapon-specific sensitivities, 5 daily Coach IA tokens, Regedit optimizer toggles, ad-free.
+   - **Elite Plan (VIP):** Unlimited Coach IA analyses, Clone Sensi OCR scanner, all Indian & Global influencer presets, VIP Discord role, priority ticket support.
+2. **Multi-Currency Pricing Structure:**
+   - **India (INR):**
+     * 3 Coach Tokens: ₹29 (Microtransaction)
+     * 10 Coach Tokens: ₹79
+     * Pro Monthly: ₹99/month
+     * Elite Annual: ₹299/year
+     * Elite Lifetime: ₹499 (One-time)
+     * Supports: Google Play In-App Billing, UPI, Paytm, Cards via Razorpay/Stripe.
+   - **Global (USD / BRL):**
+     * 3 Tokens: $0.99 / R$ 4,90
+     * Pro Monthly: $2.99 / R$ 14,90
+     * Elite Annual: $9.99 / R$ 49,90
+3. **Retention Loops:**
+   - **7-Day Streak (`app/rewards.tsx`):** Users get +1 free Coach Token each day they log in. Day 7 awards an exclusive "One-Tap Shotgun" sensitivity preset.
+   - **Referral Affiliate (`app/referral.tsx`):** Share referral link/code with friends. When a friend joins, both receive +2 Coach Tokens.
+
+---
+
+### 6. DATABASE SCHEMA (Supabase / PostgreSQL)
+```sql
+-- Users table
+CREATE TABLE public.users (
+  id UUID PRIMARY KEY REFERENCES auth.users(id),
+  email TEXT UNIQUE NOT NULL,
+  display_name TEXT,
+  phone_model TEXT,
+  selected_game TEXT DEFAULT 'freefire_india', -- 'freefire_india' | 'freefire_max' | 'freefire_global'
+  vip_tier TEXT DEFAULT 'free', -- 'free' | 'pro' | 'elite'
+  vip_expires_at TIMESTAMP WITH TIME ZONE,
+  coach_tokens INT DEFAULT 2,
+  streak_count INT DEFAULT 1,
+  last_streak_claim TIMESTAMP WITH TIME ZONE,
+  referral_code TEXT UNIQUE,
+  referred_by TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Saved sensitivity configs
+CREATE TABLE public.sensitivity_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  profile_name TEXT NOT NULL,
+  phone_model TEXT NOT NULL,
+  general INT NOT NULL,
+  red_dot INT NOT NULL,
+  scope_2x INT NOT NULL,
+  scope_4x INT NOT NULL,
+  scope_awm INT NOT NULL,
+  free_look INT NOT NULL,
+  fire_button_size INT NOT NULL,
+  recommended_dpi INT NOT NULL,
+  pointer_speed INT DEFAULT 0,
+  is_favorite BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Influencer presets catalog
+CREATE TABLE public.influencer_presets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  region TEXT NOT NULL, -- 'IN' | 'BR' | 'GLOBAL'
+  avatar_url TEXT,
+  weapon_focus TEXT,
+  general INT NOT NULL,
+  red_dot INT NOT NULL,
+  scope_2x INT NOT NULL,
+  scope_4x INT NOT NULL,
+  scope_awm INT NOT NULL,
+  fire_button_size INT NOT NULL,
+  recommended_dpi INT NOT NULL,
+  is_vip_only BOOLEAN DEFAULT TRUE
+7. EXECUTION & CODE QUALITY GUIDELINES
+Deliver full, unminified, syntactically complete code without omitting components or using placeholders like // TODO: implement later.
+Ensure strict TypeScript types across all files.
+Test layout on both Android and iOS devices, accounting for notch/Dynamic Island with react-native-safe-area-context.
+Implement smooth touch feedback using expo-haptics on all sliders and toggle interactions.
+);// app/(tabs)/settings.tsx ke andar
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { useUserStore } from '@/stores/useUserStore';
+
+export default function SettingsScreen() {
+  const [tapCount, setTapCount] = useState(0);
+  const { setVipTier, addTokens } = useUserStore();
+
+  const handleSecretDevTap = () => {
+    const nextCount = tapCount + 1;
+    setTapCount(nextCount);
+
+    if (nextCount === 7) {
+      setVipTier('elite');
+      addTokens(500);
+      Alert.alert('🛠️ Dev Mode Activated', 'Sare VIP Features aur 500 Coach Tokens unlock ho gaye!');
+      setTapCount(0);
+    }
+  };
+
+  return (
+    <View className="flex-1 bg-black p-4">
+      {/* Baaki settings options yahan... */}
+
+      {/* Footer Version: Ispe 7 baar tap karke test karein */}
+      <TouchableOpacity onPress={handleSecretDevTap} activeOpacity={0.8} className="py-4 items-center">
+        <Text className="text-gray-500 text-xs font-mono">
+          Versão 1.0.0 (Build 42) - Free Fire India
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
